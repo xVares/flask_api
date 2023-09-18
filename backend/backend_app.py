@@ -24,18 +24,52 @@ def list_or_create_posts():
     """
     List all blog posts or add a new blog post.
 
-    This endpoint serves two purposes:
-    - For GET requests, it returns a list of all saved blog posts.
-    - For POST requests, it allows adding a new blog post to the database.
+    This endpoint serves two primary purposes:
 
-    For POST Requests:
-        - Requires a JSON payload with "title" and "content" attributes.
+    - For GET requests, it returns a list of all saved blog posts. You can also sort
+      the results by specifying the 'sort' and 'direction' query parameters.
+
+    - For POST requests, it allows adding a new blog post to the database. This
+      requires a JSON payload with "title" and "content" attributes.
+
+    Parameters:
+    - For POST Requests:
+        - JSON Payload (Required):
+          {
+              "title": "New Post",
+              "content": "This is the content of the new post."
+          }
         - Returns a JSON response with the newly added blog post or validation errors.
 
     Returns:
-        - For GET: A list of blog posts.
-        - For POST: Either the newly added blog post or validation errors.
+    - For GET:
+        - A list of blog posts.
+        - You can sort the results by specifying 'sort' (accepts 'title' or 'content')
+          and 'direction' (accepts 'asc' or 'desc') query parameters.
+        - Example: GET /api/posts?sort=title&direction=asc
+
+    - For POST:
+        - Either the newly added blog post or validation errors.
+
+    Example Usage:
+    - To retrieve all blog posts: GET /api/posts
+    - To retrieve all blog posts sorted by title in ascending order: GET
+        /api/posts?sort=title&direction=asc
+    - To add a new blog post:
+        POST /api/posts
+        JSON Payload:
+        {
+            "title": "New Post",
+            "content": "This is the content of the new post."
+        }
+
+    Note:
+    - For sorting, 'sort' can be 'title' or 'content', and 'direction' can be 'asc' or 'desc'.
+    - When posting a new blog post, make sure to include both "title" and "content" in the JSON payload.
+
     """
+    # The existing code implementation for this endpoint remains the same.
+
     if request.method == "POST":
         post_request = request.get_json()
         title = post_request.get("title")
@@ -129,6 +163,37 @@ def delete_post(post_id):
 
 @app.route("/api/posts/search", methods=["GET"])
 def search_post():
+    """
+    Search for blog posts by title and/or content.
+
+    This endpoint allows searching for blog posts based on title and/or content.
+
+    Parameters (query string):
+        - title (str, optional): The title keyword to search for in blog posts.
+        - content (str, optional): The content keyword to search for in blog posts.
+
+    Returns:
+        - If one or both search parameters are provided and match any blog post(s),
+          returns a JSON response with the list of matching blog posts.
+        - If no search parameters are provided or no matching posts are found,
+          returns a JSON response with an appropriate message and status code.
+
+    Example:
+        To search for blog posts with the word "Python" in the title:
+        GET /api/posts/search?title=Python
+
+        To search for blog posts with the word "Flask" in the content:
+        GET /api/posts/search?content=Flask
+
+        To search for blog posts with both "Python" in title and "Flask" in content:
+        GET /api/posts/search?title=Python&content=Flask
+
+        If no matching posts are found:
+        {
+            "message": "No posts were found",
+            "status_code": 404
+        }
+    """
     # Get search parameters from request
     search_title = request.args.get("title").lower()
     search_content = request.args.get("content").lower()
